@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -30,6 +31,7 @@ public class PlayerStats : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(statName))
         {
+            Debug.Log("SetStat: Stat name cannot be empty.");
             return false;
         }
 
@@ -40,6 +42,9 @@ public class PlayerStats : MonoBehaviour
         {
             case nameof(hp):
                 hp = Mathf.RoundToInt(value);
+                if (hp <= 0)
+                    //update when we have game over logic
+                    Debug.Log($"Player died. HP: {hp}");
                 break;
             case nameof(baseDamage):
                 baseDamage = Mathf.RoundToInt(value);
@@ -57,13 +62,15 @@ public class PlayerStats : MonoBehaviour
                 _rb.gravityScale = value;
                 break;
         }
-        
+        Debug.Log($"SetStat: Successfully set stat '{statName}' to {value}");
         return true;
     }
 
-    public bool TryGetStat(string statName, out float value)
+    public float TryGetStat(string statName)
     {
-        return _stats.TryGetValue(statName, out value);
+        var statValue = _stats.GetValueOrDefault(statName);
+        Debug.LogWarning($"Retrieved stat '{statName}' with value {statValue}");
+        return statValue;
     }
 
     // Update is called once per frame

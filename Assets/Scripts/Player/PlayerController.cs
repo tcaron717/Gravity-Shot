@@ -1,6 +1,11 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(LineRenderer))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D _rb;
@@ -18,6 +23,7 @@ public class PlayerController : MonoBehaviour
     private float _maxLaunchForce = 5f;
     [SerializeField] private Transform arenaRoot;
     private float _onDragVelocityMultiplier;
+    private bool _isInitialized;
     [ColorUsage(true, true)] [SerializeField] private Color primaryTrajectoryColor = Color.cyan;
     [ColorUsage(true, true)] [SerializeField] private Color bounceTrajectoryColor = new Color(1f, 0.5f, 0f, 1f);
 
@@ -26,10 +32,20 @@ public class PlayerController : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _playerCollider = GetComponent<Collider2D>();
         _lineRenderer = GetComponent<LineRenderer>();
+        _stats = GetComponent<PlayerStats>();
+
+        if (_rb == null || _playerCollider == null || _lineRenderer == null || _stats == null)
+        {
+            Debug.LogError(
+                "PlayerController is missing one or more required components (Rigidbody2D, Collider2D, LineRenderer, PlayerStats). Disabling script.",
+                this);
+            enabled = false;
+            return;
+        }
+
         _lineRenderer.enabled = false;
         _aimPlayer = GameManager.aimPlayer;
         _aimPress = GameManager.aimPress;
-        _stats = GetComponent<PlayerStats>();
         
         //set base stats from StatSheet
         _launchPower = _stats.launchPower;
@@ -44,11 +60,37 @@ public class PlayerController : MonoBehaviour
                 arenaRoot = arenaObj.transform;
             }
         }
+
+        _isInitialized = true;
     }
 
     void Update()
     {
+        if (!_isInitialized)
+        {
+            return;
+        }
+
         HandleInput();
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!_isInitialized)
+        {
+            return;
+        }
+
+        if (collision == null || collision.gameObject == null)
+        {
+            return;
+        }
+
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Player collided with the enemy");
+            DamageModel.TakeDamage(gameObject.name, collision.gameObject.name);
+        }
     }
 
     void HandleInput()
@@ -133,7 +175,10 @@ public class PlayerController : MonoBehaviour
     {
         _isDragging = false;
         _wasAimPressed = false;
-        _lineRenderer.enabled = false;
+        if (_lineRenderer != null)
+        {
+            _lineRenderer.enabled = false;
+        }
         Time.timeScale = 1f;
     }
 
@@ -186,6 +231,11 @@ public class PlayerController : MonoBehaviour
 
     void StartDrag(Vector2 startWorldPos)
     {
+        if (_lineRenderer == null || _rb == null)
+        {
+            return;
+        }
+
         _dragStartPos = startWorldPos;
         _isDragging = true;
         _lineRenderer.enabled = true;
@@ -198,6 +248,11 @@ public class PlayerController : MonoBehaviour
 
     void UpdateDrag(Vector2 currentWorldPos)
     {
+        if (_lineRenderer == null)
+        {
+            return;
+        }
+
         Vector2 launchDir = _dragStartPos - currentWorldPos;
         Vector2 clampedForce = Vector2.ClampMagnitude(launchDir * _launchPower, _maxLaunchForce);
         UpdateAimLine(clampedForce);
@@ -205,6 +260,11 @@ public class PlayerController : MonoBehaviour
 
     void EndDrag(Vector2 endWorldPos)
     {
+        if (_lineRenderer == null || _rb == null)
+        {
+            return;
+        }
+
         Vector2 launchDir = _dragStartPos - endWorldPos;
         Vector2 force = Vector2.ClampMagnitude(launchDir * _launchPower, _maxLaunchForce);
         _rb.AddForce(force, ForceMode2D.Impulse);
