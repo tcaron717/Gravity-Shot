@@ -867,6 +867,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerStatsReference: {fileID: 0}
+  enemyStatsReference: {fileID: 0}
 --- !u!4 &943842482
 Transform:
   m_ObjectHideFlags: 0
@@ -896,6 +897,7 @@ GameObject:
   - component: {fileID: 1141074133}
   - component: {fileID: 1141074137}
   - component: {fileID: 1141074138}
+  - component: {fileID: 1141074139}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1124,6 +1126,19 @@ MonoBehaviour:
   launchPower: 1
   maxLaunchForce: 5
   onDragVelocityMultiplier: 0.75
+--- !u!114 &1141074139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141074132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13f8dbc0dc6004323a1f69421bfa1240, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBoons
+  boonList: {fileID: 11400000, guid: 8e17ac00483ef4cb38eac3481ae36bcb, type: 2}
 --- !u!1 &1311338427
 GameObject:
   m_ObjectHideFlags: 0

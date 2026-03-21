@@ -12,19 +12,51 @@ public class PlayerStats : MonoBehaviour
     private float gravityScale;
     private Rigidbody2D _rb;
     private readonly Dictionary<string, float> _stats = new Dictionary<string, float>();
+    private readonly Dictionary<string, float> _baseStats = new Dictionary<string, float>();
+    private PlayerBoons playerBoons;
 
     void Awake()
     {
-        //Get Rigidbody2d stats
-       _rb = GetComponent<Rigidbody2D>();
+        _rb = GetComponent<Rigidbody2D>();
+        playerBoons = GetComponent<PlayerBoons>();
 
-        // Seed dictionary from current inspector/default values.
+        if (_rb == null)
+        {
+            Debug.LogError("PlayerStats requires a Rigidbody2D component on the same GameObject.", this);
+            return;
+        }
+
+        // Seed current stat dictionary from current inspector/default values.
         _stats[nameof(hp)] = hp;
         _stats[nameof(baseDamage)] = baseDamage;
         _stats[nameof(launchPower)] = launchPower;
         _stats[nameof(maxLaunchForce)] = maxLaunchForce;
         _stats[nameof(onDragVelocityMultiplier)] = onDragVelocityMultiplier;
         _stats[nameof(gravityScale)] = _rb.gravityScale;
+        
+        // Seed current stat dictionary from current inspector/default values.
+        _baseStats[nameof(hp)] = hp;
+        _baseStats[nameof(baseDamage)] = baseDamage;
+        _baseStats[nameof(launchPower)] = launchPower;
+        _baseStats[nameof(maxLaunchForce)] = maxLaunchForce;
+        _baseStats[nameof(onDragVelocityMultiplier)] = onDragVelocityMultiplier;
+        _baseStats[nameof(gravityScale)] = _rb.gravityScale;
+
+        if (playerBoons == null)
+        {
+            Debug.LogError("PlayerStats requires a PlayerBoons component on the same GameObject.", this);
+            return;
+        }
+
+    }
+
+    void Start()
+    {
+        if (playerBoons == null)
+        {
+            return;
+        }
+        
     }
 
     public bool SetStat(string statName, float value)
@@ -66,16 +98,20 @@ public class PlayerStats : MonoBehaviour
         return true;
     }
 
-    public float TryGetStat(string statName)
+    public float TryGetStatValue(string statName)
     {
         var statValue = _stats.GetValueOrDefault(statName);
         Debug.LogWarning($"Retrieved stat '{statName}' with value {statValue}");
         return statValue;
     }
-
-    // Update is called once per frame
-    void Update()
+    
+    public float TryGetBaseStatValue(string statName)
     {
-        
+        var statValue = _baseStats.GetValueOrDefault(statName);
+        Debug.LogWarning($"Retrieved stat '{statName}' with value {statValue}");
+        return statValue;
     }
+    
+
+    
 }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
@@ -156,7 +157,7 @@ public class GameManager : MonoBehaviour
                 return value = 0;
             }
 
-            return value = playerStats.TryGetStat(statName);
+            return value = playerStats.TryGetStatValue(statName);
         }
 
         if (!TryGetEnemyStats(caller, out EnemyStats enemyStats))
@@ -168,5 +169,9 @@ public class GameManager : MonoBehaviour
         return value = enemyStats.TryGetStat(statName);
 
     }
-       
+
+    private void Start()
+    {
+        Debug.Log("GameManager started.");
+    }
 }
